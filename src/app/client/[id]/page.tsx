@@ -20,7 +20,7 @@ export default function ClientDetailPage() {
 
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [sessions, setSessions] = useState<SessionData[]>([]);
-  const [tab, setTab] = useState<'timeline' | 'new' | 'compare' | 'rag'>('timeline');
+  const [tab, setTab] = useState<'timeline' | 'new' | 'compare' | 'rag' | 'edit'>('timeline');
   const [newText, setNewText] = useState('');
   const [newNumber, setNewNumber] = useState(1);
   const [newTechnique, setNewTechnique] = useState('');

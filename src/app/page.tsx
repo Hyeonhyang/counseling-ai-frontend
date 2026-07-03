@@ -50,7 +50,7 @@ export default function HomePage() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
-      <div style={{ width: 'var(--sidebar-w)', background: '#1a2233', color: 'white', padding: '24px 16px', flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div style={{ width: 'var(--sidebar-w)', background: '#1a2233', color: 'white', padding: '24px 16px', flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, height: '100vh' }}>
         <div>
           <h2 style={{ fontSize: '1.1rem', marginBottom: 24 }}>🧠 AI 상담 보조</h2>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -64,7 +64,7 @@ export default function HomePage() {
       </div>
 
       {/* Main */}
-      <div style={{ flex: 1, padding: 32 }}>
+      <div style={{ flex: 1, padding: 32, marginLeft: 'var(--sidebar-w)', minHeight: '100vh', overflow: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <h1 style={{ fontSize: '1.5rem' }}>내담자 관리</h1>
           <button className="btn-primary" onClick={() => setShowForm(!showForm)}>+ 새 내담자</button>

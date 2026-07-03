@@ -221,19 +221,25 @@ export default function ClientDetailPage() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
-      <div style={{ width: 'var(--sidebar-w)', background: '#1a2233', color: 'white', padding: '24px 16px', flexShrink: 0 }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: 24 }}>🧠 AI 상담 보조</h2>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <a href="/" style={{ padding: '10px 12px', borderRadius: 8, color: '#aaa', textDecoration: 'none', fontSize: '0.9rem' }}>← 내담자 목록</a>
-          <button onClick={() => setTab('timeline')} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'timeline' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>📋 타임라인</button>
-          <button onClick={() => setTab('new')} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'new' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>✍️ 새 일지 작성</button>
-          <button onClick={() => setTab('compare')} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'compare' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>📊 세션 비교</button>
-          <button onClick={() => { setTab('rag'); runRAG(); }} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'rag' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>🔍 유사 케이스</button>
-        </nav>
+      <div style={{ width: 'var(--sidebar-w)', background: '#1a2233', color: 'white', padding: '24px 16px', flexShrink: 0, position: 'fixed', top: 0, left: 0, height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: 24 }}>🧠 AI 상담 보조</h2>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <a href="/" style={{ padding: '10px 12px', borderRadius: 8, color: '#aaa', textDecoration: 'none', fontSize: '0.9rem' }}>← 내담자 목록</a>
+            <button onClick={() => setTab('timeline')} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'timeline' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>📋 타임라인</button>
+            <button onClick={() => setTab('new')} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'new' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>✍️ 새 일지 작성</button>
+            <button onClick={() => setTab('compare')} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'compare' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>📊 세션 비교</button>
+            <button onClick={() => { setTab('rag'); runRAG(); }} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'rag' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>🔍 유사 케이스</button>
+          </nav>
+        </div>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 16 }}>
+          <p style={{ fontSize: '0.85rem', marginBottom: 8 }}>👤 {typeof window !== 'undefined' && JSON.parse(localStorage.getItem('counselor') || '{}').name}</p>
+          <button onClick={() => { localStorage.clear(); router.push('/login'); }} style={{ width: '100%', padding: '8px', fontSize: '0.8rem', background: 'rgba(255,0,0,0.2)', color: '#ff8a80', borderRadius: 6 }}>로그아웃</button>
+        </div>
       </div>
 
       {/* Main Content */}
-      <div style={{ flex: 1, padding: 32, maxWidth: 900 }}>
+      <div style={{ flex: 1, padding: 32, marginLeft: 'var(--sidebar-w)', maxWidth: 900, minHeight: '100vh', overflow: 'auto' }}>
         {client && <h1 style={{ fontSize: '1.4rem', marginBottom: 4 }}>{client.name} ({client.age}세, {client.gender === 'M' ? '남' : '여'})</h1>}
         {client?.presenting_issue && <p style={{ color: 'var(--text-light)', marginBottom: 24 }}>{client.presenting_issue}</p>}
 

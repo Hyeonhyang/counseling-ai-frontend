@@ -88,7 +88,7 @@ export default function LoginPage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
-      <div className="card" style={{ width: '100%', maxWidth: 480, textAlign: 'center' }}>
+      <div className="card" style={{ width: '100%', maxWidth: 380, textAlign: 'center' }}>
         <h1 style={{ fontSize: '1.5rem', marginBottom: 4, color: 'var(--primary)' }}>🧠 AI 상담 보조 시스템</h1>
         <p style={{ color: 'var(--text-light)', marginBottom: 24, fontSize: '0.9rem' }}>상담사 전용 로그인</p>
 
@@ -138,14 +138,14 @@ export default function LoginPage() {
 
               {/* 자격증 목록 (펼침) */}
               {showLicenseModal && (
-                <div style={{ marginTop: 8, border: '1px solid var(--border)', borderRadius: 8, maxHeight: 300, overflow: 'auto', padding: 12, background: '#fafafa' }}>
+                <div style={{ marginTop: 8, border: '1px solid var(--border)', borderRadius: 8, maxHeight: 280, overflow: 'auto', padding: '8px 12px', background: '#fafafa', fontSize: '0.82rem' }}>
                   {LICENSE_CATEGORIES.map(cat => (
-                    <div key={cat.category} style={{ marginBottom: 12 }}>
-                      <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)', marginBottom: 4 }}>{cat.category}</p>
+                    <div key={cat.category} style={{ marginBottom: 10 }}>
+                      <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', marginBottom: 2, borderBottom: '1px solid var(--border)', paddingBottom: 2 }}>{cat.category}</p>
                       {cat.items.map(item => (
-                        <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', fontSize: '0.85rem', cursor: 'pointer' }}>
-                          <input type="checkbox" checked={selectedLicenses.includes(item)} onChange={() => toggleLicense(item)} />
-                          {item}
+                        <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={selectedLicenses.includes(item)} onChange={() => toggleLicense(item)} style={{ width: 14, height: 14, flexShrink: 0 }} />
+                          <span style={{ fontSize: '0.8rem' }}>{item}</span>
                         </label>
                       ))}
                     </div>

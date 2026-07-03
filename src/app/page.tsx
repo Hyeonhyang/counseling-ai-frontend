@@ -47,6 +47,12 @@ export default function HomePage() {
     fetchClients();
   }
 
+  async function deleteClient(clientId: number, clientName: string) {
+    if (!confirm(`"${clientName}" 내담자를 삭제하시겠습니까?\n\n모든 상담 기록이 함께 삭제됩니다. 이 작업은 되돌릴 수 없습니다.`)) return;
+    await fetch(`/api/clients/${clientId}`, { method: 'DELETE', headers: getAuthHeader() });
+    fetchClients();
+  }
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
@@ -96,9 +102,9 @@ export default function HomePage() {
         {/* Client List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {clients.map(c => (
-            <div key={c.id} className="card" onClick={() => router.push(`/client/${c.id}`)}
-              style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
+            <div key={c.id} className="card"
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div onClick={() => router.push(`/client/${c.id}`)} style={{ cursor: 'pointer', flex: 1 }}>
                 <span style={{ fontWeight: 600, fontSize: '1rem' }}>{c.name}</span>
                 <span style={{ marginLeft: 8, fontSize: '0.85rem', color: 'var(--text-light)' }}>
                   {c.age && `${c.age}세`} {c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : ''}
@@ -107,7 +113,11 @@ export default function HomePage() {
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: 4 }}>{c.presenting_issue}</p>
                 )}
               </div>
-              <span style={{ color: 'var(--text-light)', fontSize: '1.2rem' }}>→</span>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+                <button onClick={(e) => { e.stopPropagation(); deleteClient(c.id, c.name); }}
+                  style={{ padding: '6px 10px', fontSize: '0.75rem', background: '#fce8e6', color: 'var(--danger)', borderRadius: 6 }}>삭제</button>
+                <span onClick={() => router.push(`/client/${c.id}`)} style={{ color: 'var(--text-light)', fontSize: '1.2rem', cursor: 'pointer' }}>→</span>
+              </div>
             </div>
           ))}
           {clients.length === 0 && (

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import DeleteModal from './components/DeleteModal';
 
 interface Client {
   id: number; name: string; age: number | null;
@@ -15,6 +16,7 @@ export default function HomePage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: '', age: '', gender: '', presenting_issue: '' });
   const [counselor, setCounselor] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -48,8 +50,13 @@ export default function HomePage() {
   }
 
   async function deleteClient(clientId: number, clientName: string) {
-    if (!confirm(`"${clientName}" 내담자를 삭제하시겠습니까?\n\n모든 상담 기록이 함께 삭제됩니다. 이 작업은 되돌릴 수 없습니다.`)) return;
-    await fetch(`/api/clients/${clientId}`, { method: 'DELETE', headers: getAuthHeader() });
+    setDeleteTarget({ id: clientId, name: clientName });
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    await fetch(`/api/clients/${deleteTarget.id}`, { method: 'DELETE', headers: getAuthHeader() });
+    setDeleteTarget(null);
     fetchClients();
   }
 
@@ -125,6 +132,16 @@ export default function HomePage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        isOpen={!!deleteTarget}
+        title="내담자 삭제"
+        itemName={deleteTarget?.name || ''}
+        description="이 내담자에 연결된 모든 상담 회차 기록, AI 분석 결과, 감정 점수 데이터가 영구적으로 삭제됩니다."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

@@ -350,6 +350,17 @@ export default function ClientDetailPage() {
                     ))}
                   </div>
                 </div>
+                <div style={{ marginBottom: 12 }}>
+                  <p style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: 4 }}>방어기제:</p>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    {parseResult.defense_mechanisms?.map((d: string, i: number) => (
+                      <span key={i} className="chip" style={{ background: '#fef3c7', color: '#92400e' }}>{d}</span>
+                    ))}
+                    {(!parseResult.defense_mechanisms || parseResult.defense_mechanisms.length === 0) && (
+                      <span style={{ fontSize: '0.83rem', color: 'var(--text-light)' }}>감지 안됨</span>
+                    )}
+                  </div>
+                </div>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: 12 }}>{parseResult.summary}</p>
                 
                 {/* SOAP 초안 */}

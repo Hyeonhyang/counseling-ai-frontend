@@ -137,21 +137,22 @@ export default function ClientDetailPage() {
     if (!newText.trim()) return;
     setParsing(true);
     try {
-      // AI 분석 + SOAP 동시 요청
-      const [parseRes, soapRes] = await Promise.all([
-        fetch('/api/sessions/parse-text', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: newText }),
-        }),
-        fetch('/api/sessions/soap', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: newText }),
-        }),
-      ]);
+      // AI 분석 먼저
+      const parseRes = await fetch('/api/sessions/parse-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: newText }),
+      });
       const parsed = await parseRes.json();
+
+      // SOAP은 분석 완료 후 순차 호출 (rate limit 방지)
+      const soapRes = await fetch('/api/sessions/soap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: newText }),
+      });
       const soap = await soapRes.json();
+
       setParseResult({ ...parsed, soap, pendingSave: true });
     } catch {
       alert('AI 분석 실패');

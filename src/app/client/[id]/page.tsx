@@ -237,13 +237,22 @@ export default function ClientDetailPage() {
     ]);
     const parsed = await parseRes.json();
     const soap = await soapRes.json();
+    // 점수를 슬라이더에 반영
     setEditScores({
       depression_score: parsed.depression_score,
       anxiety_score: parsed.anxiety_score,
       anger_score: parsed.anger_score,
       self_esteem_score: parsed.self_esteem_score,
     });
-    setEditParseResult({ ...parsed, soap });
+    // SOAP를 textarea에 직접 반영
+    setEditSoap({
+      subjective: soap.subjective || '',
+      objective: soap.objective || '',
+      assessment: soap.assessment || '',
+      plan: soap.plan || '',
+    });
+    // 재분석 결과는 숨김 (이미 위에 반영됨)
+    setEditParseResult(null);
   }
 
   async function generateSoap() {

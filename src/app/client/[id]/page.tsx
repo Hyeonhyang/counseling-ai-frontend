@@ -61,7 +61,7 @@ export default function ClientDetailPage() {
   }, [clientId]);
 
   useEffect(() => {
-    if (editSession) {
+    if (editSession && !(editSession as any)._reparsed) {
       setEditText(editSession.raw_text);
       setEditTechnique(editSession.technique_used);
       setEditNumber(editSession.session_number);
@@ -316,7 +316,8 @@ export default function ClientDetailPage() {
       raw_text: editText,
       risk_level: parsed.risk_level || 'none',
       risk_keywords: JSON.stringify(parsed.risk_keywords || []),
-    });
+      _reparsed: true,
+    } as any);
     setEditParseResult(null);
   }
 

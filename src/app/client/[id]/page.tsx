@@ -295,7 +295,7 @@ export default function ClientDetailPage() {
       </div>
 
       {/* Main Content */}
-      <div style={{ flex: 1, padding: 32, marginLeft: 'var(--sidebar-w)', maxWidth: 900, minHeight: '100vh', overflow: 'auto' }}>
+      <div style={{ flex: 1, padding: 32, marginLeft: 'var(--sidebar-w)', maxWidth: 1100, minHeight: '100vh', overflow: 'auto' }}>
         {client && <h1 style={{ fontSize: '1.4rem', marginBottom: 4 }}>{client.name} ({client.age}세, {client.gender === 'M' ? '남' : '여'})</h1>}
         {client?.presenting_issue && <p style={{ color: 'var(--text-light)', marginBottom: 24 }}>{client.presenting_issue}</p>}
 
@@ -553,30 +553,30 @@ export default function ClientDetailPage() {
             {/* SOAP 수정 */}
             <div className="card" style={{ marginBottom: 12 }}>
               <h3 style={{ fontSize: '0.95rem', marginBottom: 12 }}>📋 SOAP 노트</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div style={{ borderLeft: '3px solid #1a73e8', borderRadius: 4 }}>
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1a73e8', padding: '0 12px' }}>S | Subjective</span>
                   <textarea value={editSoap.subjective} onChange={e => setEditSoap({...editSoap, subjective: e.target.value})}
                     placeholder="내담자의 주관적 호소..."
-                    style={{ border: 'none', background: '#f8faff', fontSize: '0.83rem', minHeight: 50, padding: '6px 12px', resize: 'vertical' }} />
+                    style={{ border: 'none', background: '#f8faff', fontSize: '0.85rem', minHeight: 80, padding: '8px 12px', resize: 'vertical', lineHeight: 1.6 }} />
                 </div>
                 <div style={{ borderLeft: '3px solid #34a853', borderRadius: 4 }}>
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34a853', padding: '0 12px' }}>O | Objective</span>
                   <textarea value={editSoap.objective} onChange={e => setEditSoap({...editSoap, objective: e.target.value})}
                     placeholder="객관적 관찰 사항..."
-                    style={{ border: 'none', background: '#f8fff8', fontSize: '0.83rem', minHeight: 50, padding: '6px 12px', resize: 'vertical' }} />
+                    style={{ border: 'none', background: '#f8fff8', fontSize: '0.85rem', minHeight: 80, padding: '8px 12px', resize: 'vertical', lineHeight: 1.6 }} />
                 </div>
                 <div style={{ borderLeft: '3px solid #f59e0b', borderRadius: 4 }}>
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b', padding: '0 12px' }}>A | Assessment</span>
                   <textarea value={editSoap.assessment} onChange={e => setEditSoap({...editSoap, assessment: e.target.value})}
                     placeholder="전문적 평가..."
-                    style={{ border: 'none', background: '#fffef8', fontSize: '0.83rem', minHeight: 50, padding: '6px 12px', resize: 'vertical' }} />
+                    style={{ border: 'none', background: '#fffef8', fontSize: '0.85rem', minHeight: 80, padding: '8px 12px', resize: 'vertical', lineHeight: 1.6 }} />
                 </div>
                 <div style={{ borderLeft: '3px solid #9c27b0', borderRadius: 4 }}>
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9c27b0', padding: '0 12px' }}>P | Plan</span>
                   <textarea value={editSoap.plan} onChange={e => setEditSoap({...editSoap, plan: e.target.value})}
                     placeholder="향후 계획..."
-                    style={{ border: 'none', background: '#fdf8ff', fontSize: '0.83rem', minHeight: 50, padding: '6px 12px', resize: 'vertical' }} />
+                    style={{ border: 'none', background: '#fdf8ff', fontSize: '0.85rem', minHeight: 80, padding: '8px 12px', resize: 'vertical', lineHeight: 1.6 }} />
                 </div>
               </div>
             </div>

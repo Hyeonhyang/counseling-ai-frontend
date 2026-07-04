@@ -342,11 +342,38 @@ export default function ClientDetailPage() {
     setSelectedSessions(prev => prev.includes(num) ? prev.filter(n => n !== num) : [...prev, num]);
   }
 
-  // Radar chart data
-  const radarData = comparison?.sessions ? comparison.sessions.map((s: any) => ({
-    session: `${s.session_number}회차`,
-    우울: s.depression, 불안: s.anxiety, 분노: s.anger, 자존감: s.self_esteem,
-  })) : [];
+  // Radar chart data: 4개 이상 선택 시 최고/평균/최저로 요약
+  function getRadarData() {
+    if (!comparison?.sessions || comparison.sessions.length === 0) return [];
+    const sessions = comparison.sessions;
+
+    if (sessions.length <= 3) {
+      // 3개 이하면 그대로 표시
+      return [
+        { metric: '우울', ...Object.fromEntries(sessions.map((s: any) => [`${s.session_number}회차`, s.depression])) },
+        { metric: '불안', ...Object.fromEntries(sessions.map((s: any) => [`${s.session_number}회차`, s.anxiety])) },
+        { metric: '분노', ...Object.fromEntries(sessions.map((s: any) => [`${s.session_number}회차`, s.anger])) },
+        { metric: '자존감', ...Object.fromEntries(sessions.map((s: any) => [`${s.session_number}회차`, s.self_esteem])) },
+      ];
+    } else {
+      // 4개 이상: 최고/평균/최저로 요약
+      const metrics = ['depression', 'anxiety', 'anger', 'self_esteem'];
+      const labels = ['우울', '불안', '분노', '자존감'];
+      return labels.map((label, i) => {
+        const key = metrics[i];
+        const values = sessions.map((s: any) => s[key]);
+        return {
+          metric: label,
+          '최고': Math.max(...values),
+          '평균': Math.round(values.reduce((a: number, b: number) => a + b, 0) / values.length),
+          '최저': Math.min(...values),
+        };
+      });
+    }
+  }
+
+  const radarData = getRadarData();
+  const radarIsSummary = comparison?.sessions && comparison.sessions.length > 3;
 
   const COLORS = ['#1a73e8', '#ea4335', '#34a853', '#fbbc04', '#9c27b0'];
 
@@ -560,21 +587,24 @@ export default function ClientDetailPage() {
               <>
                 {/* Radar Chart */}
                 <div className="card" style={{ marginBottom: 16 }}>
-                  <h3 style={{ marginBottom: 12 }}>스파이더 차트 (Radar)</h3>
+                  <h3 style={{ marginBottom: 12 }}>스파이더 차트 (Radar){radarIsSummary ? ' — 최고/평균/최저 요약' : ''}</h3>
                   <ResponsiveContainer width="100%" height={350}>
-                    <RadarChart data={[
-                      { metric: '우울', ...Object.fromEntries(comparison.sessions.map((s: any) => [`${s.session_number}회차`, s.depression])) },
-                      { metric: '불안', ...Object.fromEntries(comparison.sessions.map((s: any) => [`${s.session_number}회차`, s.anxiety])) },
-                      { metric: '분노', ...Object.fromEntries(comparison.sessions.map((s: any) => [`${s.session_number}회차`, s.anger])) },
-                      { metric: '자존감', ...Object.fromEntries(comparison.sessions.map((s: any) => [`${s.session_number}회차`, s.self_esteem])) },
-                    ]}>
+                    <RadarChart data={radarData}>
                       <PolarGrid />
                       <PolarAngleAxis dataKey="metric" />
                       <PolarRadiusAxis domain={[0, 100]} />
-                      {comparison.sessions.map((s: any, i: number) => (
-                        <Radar key={s.session_number} name={`${s.session_number}회차`} dataKey={`${s.session_number}회차`}
-                          stroke={COLORS[i % COLORS.length]} fill={COLORS[i % COLORS.length]} fillOpacity={0.15} />
-                      ))}
+                      {radarIsSummary ? (
+                        <>
+                          <Radar name="최고" dataKey="최고" stroke="#ea4335" fill="#ea4335" fillOpacity={0.1} />
+                          <Radar name="평균" dataKey="평균" stroke="#1a73e8" fill="#1a73e8" fillOpacity={0.15} />
+                          <Radar name="최저" dataKey="최저" stroke="#34a853" fill="#34a853" fillOpacity={0.1} />
+                        </>
+                      ) : (
+                        comparison.sessions.map((s: any, i: number) => (
+                          <Radar key={s.session_number} name={`${s.session_number}회차`} dataKey={`${s.session_number}회차`}
+                            stroke={COLORS[i % COLORS.length]} fill={COLORS[i % COLORS.length]} fillOpacity={0.15} />
+                        ))
+                      )}
                       <Legend />
                     </RadarChart>
                   </ResponsiveContainer>

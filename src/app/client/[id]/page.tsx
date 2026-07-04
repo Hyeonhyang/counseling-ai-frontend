@@ -26,6 +26,9 @@ export default function ClientDetailPage() {
   const [newText, setNewText] = useState('');
   const [newNumber, setNewNumber] = useState(1);
   const [newTechnique, setNewTechnique] = useState('');
+  const [recording, setRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [transcribing, setTranscribing] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [parseResult, setParseResult] = useState<any>(null);
@@ -79,6 +82,55 @@ export default function ClientDetailPage() {
       setSessions(data);
       if (data.length > 0) setNewNumber(data[data.length - 1].session_number + 1);
     }).catch(() => {});
+  }
+
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = (e) => chunks.push(e.data);
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        await transcribeAudio(blob, 'recording.webm');
+      };
+      recorder.start();
+      setMediaRecorder(recorder);
+      setRecording(true);
+    } catch {
+      alert('마이크 권한이 필요합니다.');
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setRecording(false);
+      setMediaRecorder(null);
+    }
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await transcribeAudio(file, file.name);
+  }
+
+  async function transcribeAudio(file: Blob, filename: string) {
+    setTranscribing(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file, filename);
+      const res = await fetch('/api/stt/transcribe', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.text) {
+        setNewText(prev => prev ? prev + '\n\n' + data.text : data.text);
+      } else {
+        alert('변환 실패: ' + (data.detail || ''));
+      }
+    } catch { alert('음성 변환 중 오류 발생'); }
+    setTranscribing(false);
   }
 
   async function submitSession() {
@@ -357,6 +409,24 @@ export default function ClientDetailPage() {
               <input value={newTechnique} onChange={e => setNewTechnique(e.target.value)} placeholder="사용 기법 (예: CBT, ACT)" style={{ width: 200 }} />
             </div>
             <textarea value={newText} onChange={e => setNewText(e.target.value)} placeholder="상담 내용을 자유롭게 작성하세요..." style={{ marginBottom: 12 }} />
+
+            {/* 음성 입력 */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
+              {!recording ? (
+                <button className="btn-outline" onClick={startRecording} disabled={transcribing}>
+                  🎙️ 녹음 시작
+                </button>
+              ) : (
+                <button style={{ background: '#dc2626', color: 'white', padding: '10px 20px', borderRadius: 8, animation: 'pulse 1s infinite' }} onClick={stopRecording}>
+                  ⏹️ 녹음 중지
+                </button>
+              )}
+              <label className="btn-outline" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                📁 음성파일 업로드
+                <input type="file" accept="audio/*" onChange={handleFileUpload} style={{ display: 'none' }} />
+              </label>
+              {transcribing && <span style={{ fontSize: '0.85rem', color: 'var(--primary)' }}>🔄 변환 중...</span>}
+            </div>
             <button className="btn-primary" onClick={submitSession} disabled={parsing}>
               {parsing ? '🔄 AI 분석 중...' : '📤 저장 & AI 분석'}
             </button>

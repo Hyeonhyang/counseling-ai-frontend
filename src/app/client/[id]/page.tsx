@@ -131,6 +131,8 @@ export default function ClientDetailPage() {
           soap_objective: parseResult.soap?.objective || "",
           soap_assessment: parseResult.soap?.assessment || "",
           soap_plan: parseResult.soap?.plan || "",
+          risk_level: parseResult.risk_level || "none",
+          risk_keywords: JSON.stringify(parseResult.risk_keywords || []),
         }),
       });
       setParseResult(null);
@@ -304,9 +306,13 @@ export default function ClientDetailPage() {
             {sessions.length === 0 ? (
               <p style={{ color: 'var(--text-light)' }}>아직 상담 기록이 없습니다.</p>
             ) : sessions.map(s => (
-              <div key={s.id} className="card" style={{ marginBottom: 12 }}>
+              <div key={s.id} className="card" style={{ marginBottom: 12, borderLeft: (s as any).risk_level === 'crisis' ? '4px solid #dc2626' : (s as any).risk_level === 'warning' ? '4px solid #f59e0b' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <strong>{s.session_number}회차</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <strong>{s.session_number}회차</strong>
+                    {(s as any).risk_level === 'crisis' && <span style={{ fontSize: '0.75rem', background: '#dc2626', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>🚨 위기</span>}
+                    {(s as any).risk_level === 'warning' && <span style={{ fontSize: '0.75rem', background: '#f59e0b', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>⚠️ 주의</span>}
+                  </div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>{s.technique_used || '기법 미기록'}</span>
                     <button onClick={() => { setEditSession(s); setTab('edit'); }} style={{ padding: '4px 8px', fontSize: '0.75rem', background: '#e8f0fe', color: 'var(--primary)', borderRadius: 6 }}>수정</button>
@@ -341,6 +347,26 @@ export default function ClientDetailPage() {
             {/* Parse Result */}
             {parseResult && (
               <div className="card" style={{ marginTop: 16 }}>
+                {/* 위기 배지 */}
+                {parseResult.risk_level === 'crisis' && (
+                  <div style={{ background: '#fef2f2', border: '1px solid #dc2626', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: '1.3rem' }}>🚨</span>
+                    <div>
+                      <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#dc2626' }}>위기 개입 필요 (Crisis)</p>
+                      <p style={{ fontSize: '0.8rem', color: '#991b1b' }}>감지 키워드: {parseResult.risk_keywords?.join(', ')}</p>
+                    </div>
+                  </div>
+                )}
+                {parseResult.risk_level === 'warning' && (
+                  <div style={{ background: '#fffbeb', border: '1px solid #f59e0b', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: '1.3rem' }}>⚠️</span>
+                    <div>
+                      <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#d97706' }}>고위험 키워드 감지 (Warning)</p>
+                      <p style={{ fontSize: '0.8rem', color: '#92400e' }}>감지 키워드: {parseResult.risk_keywords?.join(', ')}</p>
+                    </div>
+                  </div>
+                )}
+
                 <h3 style={{ marginBottom: 12 }}>🤖 AI 분석 결과 (수정 가능)</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                   {['depression_score', 'anxiety_score', 'anger_score', 'self_esteem_score'].map(key => (

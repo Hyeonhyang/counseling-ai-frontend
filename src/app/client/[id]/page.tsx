@@ -205,19 +205,27 @@ export default function ClientDetailPage() {
 
   async function reParseOnly() {
     if (!editSession) return;
-    const parseRes = await fetch('/api/sessions/parse-text', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: editText }),
-    });
+    const [parseRes, soapRes] = await Promise.all([
+      fetch('/api/sessions/parse-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: editText }),
+      }),
+      fetch('/api/sessions/soap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: editText }),
+      }),
+    ]);
     const parsed = await parseRes.json();
+    const soap = await soapRes.json();
     setEditScores({
       depression_score: parsed.depression_score,
       anxiety_score: parsed.anxiety_score,
       anger_score: parsed.anger_score,
       self_esteem_score: parsed.self_esteem_score,
     });
-    setEditParseResult(parsed);
+    setEditParseResult({ ...parsed, soap });
   }
 
   async function generateSoap() {
@@ -501,7 +509,32 @@ export default function ClientDetailPage() {
                   <p style={{ fontSize: '0.85rem', marginBottom: 4 }}><strong>핵심 인물:</strong> {editParseResult.key_persons.join(', ')}</p>
                 )}
                 {editParseResult.defense_mechanisms?.length > 0 && (
-                  <p style={{ fontSize: '0.85rem' }}><strong>방어기제:</strong> {editParseResult.defense_mechanisms.join(', ')}</p>
+                  <p style={{ fontSize: '0.85rem', marginBottom: 8 }}><strong>방어기제:</strong> {editParseResult.defense_mechanisms.join(', ')}</p>
+                )}
+
+                {/* SOAP 초안 */}
+                {editParseResult.soap && (
+                  <div style={{ marginTop: 8 }}>
+                    <h4 style={{ fontSize: '0.9rem', marginBottom: 8 }}>📋 SOAP 초안</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #1a73e8', background: '#f8faff', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1a73e8' }}>S | Subjective</span>
+                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{editParseResult.soap.subjective}</p>
+                      </div>
+                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #34a853', background: '#f8fff8', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34a853' }}>O | Objective</span>
+                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{editParseResult.soap.objective}</p>
+                      </div>
+                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #f59e0b', background: '#fffef8', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b' }}>A | Assessment</span>
+                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{editParseResult.soap.assessment}</p>
+                      </div>
+                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #9c27b0', background: '#fdf8ff', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9c27b0' }}>P | Plan</span>
+                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{editParseResult.soap.plan}</p>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             )}

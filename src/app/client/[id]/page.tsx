@@ -8,6 +8,7 @@ interface SessionData {
   id: number; session_number: number; raw_text: string;
   depression_score: number; anxiety_score: number; anger_score: number; self_esteem_score: number;
   key_persons: string; defense_mechanisms: string; ai_summary: string; technique_used: string;
+  risk_level: string; risk_keywords: string;
   soap_subjective: string; soap_objective: string; soap_assessment: string; soap_plan: string;
   session_date: string;
 }
@@ -315,12 +316,12 @@ export default function ClientDetailPage() {
             {sessions.length === 0 ? (
               <p style={{ color: 'var(--text-light)' }}>아직 상담 기록이 없습니다.</p>
             ) : sessions.map(s => (
-              <div key={s.id} className="card" style={{ marginBottom: 12, borderLeft: (s as any).risk_level === 'crisis' ? '4px solid #dc2626' : (s as any).risk_level === 'warning' ? '4px solid #f59e0b' : 'none' }}>
+              <div key={s.id} className="card" style={{ marginBottom: 12, borderLeft: s.risk_level === 'crisis' ? '4px solid #dc2626' : s.risk_level === 'warning' ? '4px solid #f59e0b' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <strong>{s.session_number}회차</strong>
-                    {(s as any).risk_level === 'crisis' && <span style={{ fontSize: '0.75rem', background: '#dc2626', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>🚨 위기</span>}
-                    {(s as any).risk_level === 'warning' && <span style={{ fontSize: '0.75rem', background: '#f59e0b', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>⚠️ 주의</span>}
+                    {s.risk_level === 'crisis' && <span style={{ fontSize: '0.75rem', background: '#dc2626', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>🚨 위기</span>}
+                    {s.risk_level === 'warning' && <span style={{ fontSize: '0.75rem', background: '#f59e0b', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>⚠️ 주의</span>}
                   </div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>{s.technique_used || '기법 미기록'}</span>
@@ -528,7 +529,11 @@ export default function ClientDetailPage() {
         {/* Edit Session Tab */}
         {tab === 'edit' && editSession && (
           <div>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: 16 }}>세션 수정 (#{editSession.session_number}회차)</h2>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: 16 }}>
+              세션 수정 (#{editSession.session_number}회차)
+              {editSession.risk_level === 'crisis' && <span style={{ marginLeft: 8, fontSize: '0.75rem', background: '#dc2626', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>🚨 위기</span>}
+              {editSession.risk_level === 'warning' && <span style={{ marginLeft: 8, fontSize: '0.75rem', background: '#f59e0b', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>⚠️ 주의</span>}
+            </h2>
             <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
               <input type="number" value={editNumber} onChange={e => setEditNumber(parseInt(e.target.value) || 1)} style={{ width: 100 }} placeholder="회차" />
               <input value={editTechnique} onChange={e => setEditTechnique(e.target.value)} placeholder="사용 기법" style={{ width: 200 }} />

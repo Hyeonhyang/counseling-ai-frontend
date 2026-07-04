@@ -20,7 +20,7 @@ export default function ClientDetailPage() {
 
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [sessions, setSessions] = useState<SessionData[]>([]);
-  const [tab, setTab] = useState<'timeline' | 'new' | 'compare' | 'rag' | 'edit' | 'soap'>('timeline');
+  const [tab, setTab] = useState<'timeline' | 'new' | 'compare' | 'rag' | 'edit'>('timeline');
   const [newText, setNewText] = useState('');
   const [newNumber, setNewNumber] = useState(1);
   const [newTechnique, setNewTechnique] = useState('');
@@ -75,15 +75,22 @@ export default function ClientDetailPage() {
     if (!newText.trim()) return;
     setParsing(true);
     try {
-      // 먼저 AI 분석부터 (DB 저장 안함)
-      const parseRes = await fetch('/api/sessions/parse-text', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: newText }),
-      });
+      // AI 분석 + SOAP 동시 요청
+      const [parseRes, soapRes] = await Promise.all([
+        fetch('/api/sessions/parse-text', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: newText }),
+        }),
+        fetch('/api/sessions/soap', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: newText }),
+        }),
+      ]);
       const parsed = await parseRes.json();
-      // 세션 생성은 아직 안함 - 사용자가 확정할 때 저장
-      setParseResult({ ...parsed, pendingSave: true });
+      const soap = await soapRes.json();
+      setParseResult({ ...parsed, soap, pendingSave: true });
     } catch {
       alert('AI 분석 실패');
     }
@@ -249,7 +256,6 @@ export default function ClientDetailPage() {
             <button onClick={() => setTab('new')} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'new' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>✍️ 새 일지 작성</button>
             <button onClick={() => setTab('compare')} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'compare' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>📊 세션 비교</button>
             <button onClick={() => { setTab('rag'); runRAG(); }} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'rag' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>🔍 유사 케이스</button>
-            <button onClick={() => setTab('soap')} style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, background: tab === 'soap' ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', fontSize: '0.9rem' }}>📝 SOAP 초안</button>
           </nav>
         </div>
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 16 }}>
@@ -333,6 +339,32 @@ export default function ClientDetailPage() {
                   </div>
                 </div>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: 12 }}>{parseResult.summary}</p>
+                
+                {/* SOAP 초안 */}
+                {parseResult.soap && (
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '0.9rem', marginBottom: 8 }}>📋 SOAP 초안</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #1a73e8', background: '#f8faff', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1a73e8' }}>S | Subjective</span>
+                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{parseResult.soap.subjective}</p>
+                      </div>
+                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #34a853', background: '#f8fff8', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34a853' }}>O | Objective</span>
+                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{parseResult.soap.objective}</p>
+                      </div>
+                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #f59e0b', background: '#fffef8', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b' }}>A | Assessment</span>
+                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{parseResult.soap.assessment}</p>
+                      </div>
+                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #9c27b0', background: '#fdf8ff', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9c27b0' }}>P | Plan</span>
+                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{parseResult.soap.plan}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <button className="btn-secondary" onClick={confirmScores}>✓ 확정 저장</button>
               </div>
             )}
@@ -510,62 +542,6 @@ export default function ClientDetailPage() {
           </div>
         )}
 
-        {/* SOAP Tab */}
-        {tab === 'soap' && (
-          <div>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: 8 }}>SOAP 상담 기록 초안 생성</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: 16 }}>상담 내용을 입력하면 AI가 SOAP 형식에 맞춰 초안을 작성합니다.</p>
-
-            <textarea value={soapText} onChange={e => setSoapText(e.target.value)}
-              placeholder="오늘 상담 내용을 자유롭게 입력하세요... (줄글, 메모, 키워드 등 형식 무관)"
-              style={{ marginBottom: 12, minHeight: 150 }} />
-            <button className="btn-primary" onClick={generateSoap} disabled={soapLoading || !soapText.trim()}>
-              {soapLoading ? '🔄 SOAP 생성 중...' : '📝 SOAP 초안 생성'}
-            </button>
-
-            {soapResult && (
-              <div style={{ marginTop: 20 }}>
-                <h3 style={{ fontSize: '1rem', marginBottom: 12 }}>📋 SOAP Note</h3>
-
-                {/* S - Subjective */}
-                <div className="card" style={{ marginBottom: 12, borderLeft: '4px solid #1a73e8' }}>
-                  <h4 style={{ fontSize: '0.85rem', color: '#1a73e8', marginBottom: 6 }}>S | Subjective (주관적 호소)</h4>
-                  <p style={{ fontSize: '0.9rem', lineHeight: 1.6 }}>{soapResult.subjective}</p>
-                </div>
-
-                {/* O - Objective */}
-                <div className="card" style={{ marginBottom: 12, borderLeft: '4px solid #34a853' }}>
-                  <h4 style={{ fontSize: '0.85rem', color: '#34a853', marginBottom: 6 }}>O | Objective (객관적 관찰)</h4>
-                  <p style={{ fontSize: '0.9rem', lineHeight: 1.6 }}>{soapResult.objective}</p>
-                </div>
-
-                {/* A - Assessment */}
-                <div className="card" style={{ marginBottom: 12, borderLeft: '4px solid #fbbc04' }}>
-                  <h4 style={{ fontSize: '0.85rem', color: '#f59e0b', marginBottom: 6 }}>A | Assessment (평가)</h4>
-                  <p style={{ fontSize: '0.9rem', lineHeight: 1.6 }}>{soapResult.assessment}</p>
-                </div>
-
-                {/* P - Plan */}
-                <div className="card" style={{ marginBottom: 12, borderLeft: '4px solid #9c27b0' }}>
-                  <h4 style={{ fontSize: '0.85rem', color: '#9c27b0', marginBottom: 6 }}>P | Plan (계획)</h4>
-                  <p style={{ fontSize: '0.9rem', lineHeight: 1.6 }}>{soapResult.plan}</p>
-                </div>
-
-                {/* 복사 버튼 */}
-                <button className="btn-outline" onClick={() => {
-                  const text = `[S] ${soapResult.subjective}\n\n[O] ${soapResult.objective}\n\n[A] ${soapResult.assessment}\n\n[P] ${soapResult.plan}`;
-                  navigator.clipboard.writeText(text);
-                  alert('SOAP 노트가 클립보드에 복사되었습니다.');
-                }} style={{ marginRight: 8 }}>
-                  📋 전체 복사
-                </button>
-                <button className="btn-outline" onClick={() => setSoapResult(null)}>
-                  다시 작성
-                </button>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

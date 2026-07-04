@@ -236,7 +236,7 @@ export default function ClientDetailPage() {
         ...editScores,
         key_persons: editSession.key_persons,
         defense_mechanisms: editSession.defense_mechanisms,
-        ai_summary: editSession.ai_summary,
+        ai_summary: editSession.ai_summary || "",
         soap_subjective: editSoap.subjective,
         soap_objective: editSoap.objective,
         soap_assessment: editSoap.assessment,
@@ -310,10 +310,11 @@ export default function ClientDetailPage() {
       assessment: soap.assessment || '',
       plan: soap.plan || '',
     });
-    // 위기 레벨 반영 (수정된 텍스트도 유지)
+    // 위기 레벨 + 요약 반영 (수정된 텍스트도 유지)
     setEditSession({
       ...editSession,
       raw_text: editText,
+      ai_summary: parsed.summary || editSession.ai_summary,
       risk_level: parsed.risk_level || 'none',
       risk_keywords: JSON.stringify(parsed.risk_keywords || []),
       _reparsed: true,

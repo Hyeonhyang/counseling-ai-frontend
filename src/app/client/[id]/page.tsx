@@ -580,6 +580,7 @@ export default function ClientDetailPage() {
               <button className="btn-outline" onClick={() => setSelectedSessions(sessions.slice(-3).map(s => s.session_number))}>최근 3회</button>
               <button className="btn-outline" onClick={() => { const s = sessions; if (s.length >= 3) setSelectedSessions([s[0].session_number, s[Math.floor(s.length/2)].session_number, s[s.length-1].session_number]); }}>처음/중간/현재</button>
               <button className="btn-outline" onClick={() => setSelectedSessions(sessions.map(s => s.session_number))}>전체</button>
+              <button className="btn-outline" onClick={() => setSelectedSessions([])}>선택 해제</button>
               <button className="btn-primary" onClick={runComparison} disabled={selectedSessions.length < 2}>비교 분석</button>
             </div>
 

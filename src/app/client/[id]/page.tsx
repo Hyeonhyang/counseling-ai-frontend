@@ -45,6 +45,7 @@ export default function ClientDetailPage() {
   const [soapText, setSoapText] = useState('');
   const [soapResult, setSoapResult] = useState<any>(null);
   const [soapLoading, setSoapLoading] = useState(false);
+  const [counselorName, setCounselorName] = useState('');
 
   function authHeaders(): Record<string, string> {
     return { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}`, 'Content-Type': 'application/json' };
@@ -53,6 +54,8 @@ export default function ClientDetailPage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
+    const c = localStorage.getItem('counselor');
+    if (c) setCounselorName(JSON.parse(c).name || '');
     fetch(`/api/clients/${clientId}`, { headers: authHeaders() }).then(r => r.json()).then(setClient).catch(() => {});
     fetchSessions();
   }, [clientId]);
@@ -359,7 +362,7 @@ export default function ClientDetailPage() {
           </nav>
         </div>
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 16 }}>
-          <p style={{ fontSize: '0.85rem', marginBottom: 8 }}>👤 {typeof window !== 'undefined' && JSON.parse(localStorage.getItem('counselor') || '{}').name}</p>
+          <p style={{ fontSize: '0.85rem', marginBottom: 8 }}>👤 {counselorName}</p>
           <button onClick={() => { localStorage.clear(); router.push('/login'); }} style={{ width: '100%', padding: '8px', fontSize: '0.8rem', background: 'rgba(255,0,0,0.2)', color: '#ff8a80', borderRadius: 6 }}>로그아웃</button>
         </div>
       </div>

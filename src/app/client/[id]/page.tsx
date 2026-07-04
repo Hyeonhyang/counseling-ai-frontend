@@ -25,6 +25,7 @@ export default function ClientDetailPage() {
   const [newNumber, setNewNumber] = useState(1);
   const [newTechnique, setNewTechnique] = useState('');
   const [parsing, setParsing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [parseResult, setParseResult] = useState<any>(null);
   const [selectedSessions, setSelectedSessions] = useState<number[]>([]);
   const [comparison, setComparison] = useState<any>(null);
@@ -98,33 +99,36 @@ export default function ClientDetailPage() {
   }
 
   async function confirmScores() {
-    if (!parseResult) return;
-    // 이제 세션 생성 + 점수 한번에 저장
-    const res = await fetch('/api/sessions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_id: parseInt(clientId), session_number: newNumber, raw_text: newText, technique_used: newTechnique }),
-    });
-    const session = await res.json();
-    // 점수 저장
-    await fetch(`/api/sessions/${session.id}/scores`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        depression_score: parseResult.depression_score,
-        anxiety_score: parseResult.anxiety_score,
-        anger_score: parseResult.anger_score,
-        self_esteem_score: parseResult.self_esteem_score,
-        key_persons: JSON.stringify(parseResult.key_persons),
-        defense_mechanisms: JSON.stringify(parseResult.defense_mechanisms),
-        ai_summary: parseResult.summary || "",
-      }),
-    });
-    setParseResult(null);
-    setNewText('');
-    setNewTechnique('');
-    setTab('timeline');
-    fetchSessions();
+    if (!parseResult || saving) return;
+    setSaving(true);
+    try {
+      const res = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: parseInt(clientId), session_number: newNumber, raw_text: newText, technique_used: newTechnique }),
+      });
+      const session = await res.json();
+      await fetch(`/api/sessions/${session.id}/scores`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          depression_score: parseResult.depression_score,
+          anxiety_score: parseResult.anxiety_score,
+          anger_score: parseResult.anger_score,
+          self_esteem_score: parseResult.self_esteem_score,
+          key_persons: JSON.stringify(parseResult.key_persons),
+          defense_mechanisms: JSON.stringify(parseResult.defense_mechanisms),
+          ai_summary: parseResult.summary || "",
+        }),
+      });
+      setParseResult(null);
+      setNewText('');
+      setNewTechnique('');
+      setTab('timeline');
+      fetchSessions();
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function runComparison() {
@@ -365,7 +369,9 @@ export default function ClientDetailPage() {
                   </div>
                 )}
 
-                <button className="btn-secondary" onClick={confirmScores}>✓ 확정 저장</button>
+                <button className="btn-secondary" onClick={confirmScores} disabled={saving}>
+                  {saving ? '저장 중...' : '✓ 확정 저장'}
+                </button>
               </div>
             )}
           </div>

@@ -8,6 +8,7 @@ interface SessionData {
   id: number; session_number: number; raw_text: string;
   depression_score: number; anxiety_score: number; anger_score: number; self_esteem_score: number;
   key_persons: string; defense_mechanisms: string; ai_summary: string; technique_used: string;
+  soap_subjective: string; soap_objective: string; soap_assessment: string; soap_plan: string;
   session_date: string;
 }
 
@@ -35,6 +36,7 @@ export default function ClientDetailPage() {
   const [editTechnique, setEditTechnique] = useState('');
   const [editNumber, setEditNumber] = useState(1);
   const [editScores, setEditScores] = useState({ depression_score: 0, anxiety_score: 0, anger_score: 0, self_esteem_score: 0 });
+  const [editSoap, setEditSoap] = useState({ subjective: '', objective: '', assessment: '', plan: '' });
   const [editParseResult, setEditParseResult] = useState<any>(null);
   const [soapText, setSoapText] = useState('');
   const [soapResult, setSoapResult] = useState<any>(null);
@@ -61,6 +63,12 @@ export default function ClientDetailPage() {
         anxiety_score: editSession.anxiety_score,
         anger_score: editSession.anger_score,
         self_esteem_score: editSession.self_esteem_score,
+      });
+      setEditSoap({
+        subjective: (editSession as any).soap_subjective || '',
+        objective: (editSession as any).soap_objective || '',
+        assessment: (editSession as any).soap_assessment || '',
+        plan: (editSession as any).soap_plan || '',
       });
     }
   }, [editSession]);
@@ -170,6 +178,10 @@ export default function ClientDetailPage() {
         key_persons: editSession.key_persons,
         defense_mechanisms: editSession.defense_mechanisms,
         ai_summary: editSession.ai_summary,
+        soap_subjective: editSoap.subjective,
+        soap_objective: editSoap.objective,
+        soap_assessment: editSoap.assessment,
+        soap_plan: editSoap.plan,
       }),
     });
     setEditSession(null);
@@ -509,6 +521,37 @@ export default function ClientDetailPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* SOAP 수정 */}
+            <div className="card" style={{ marginBottom: 12 }}>
+              <h3 style={{ fontSize: '0.95rem', marginBottom: 12 }}>📋 SOAP 노트</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ borderLeft: '3px solid #1a73e8', borderRadius: 4 }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1a73e8', padding: '0 12px' }}>S | Subjective</span>
+                  <textarea value={editSoap.subjective} onChange={e => setEditSoap({...editSoap, subjective: e.target.value})}
+                    placeholder="내담자의 주관적 호소..."
+                    style={{ border: 'none', background: '#f8faff', fontSize: '0.83rem', minHeight: 50, padding: '6px 12px', resize: 'vertical' }} />
+                </div>
+                <div style={{ borderLeft: '3px solid #34a853', borderRadius: 4 }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34a853', padding: '0 12px' }}>O | Objective</span>
+                  <textarea value={editSoap.objective} onChange={e => setEditSoap({...editSoap, objective: e.target.value})}
+                    placeholder="객관적 관찰 사항..."
+                    style={{ border: 'none', background: '#f8fff8', fontSize: '0.83rem', minHeight: 50, padding: '6px 12px', resize: 'vertical' }} />
+                </div>
+                <div style={{ borderLeft: '3px solid #f59e0b', borderRadius: 4 }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b', padding: '0 12px' }}>A | Assessment</span>
+                  <textarea value={editSoap.assessment} onChange={e => setEditSoap({...editSoap, assessment: e.target.value})}
+                    placeholder="전문적 평가..."
+                    style={{ border: 'none', background: '#fffef8', fontSize: '0.83rem', minHeight: 50, padding: '6px 12px', resize: 'vertical' }} />
+                </div>
+                <div style={{ borderLeft: '3px solid #9c27b0', borderRadius: 4 }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9c27b0', padding: '0 12px' }}>P | Plan</span>
+                  <textarea value={editSoap.plan} onChange={e => setEditSoap({...editSoap, plan: e.target.value})}
+                    placeholder="향후 계획..."
+                    style={{ border: 'none', background: '#fdf8ff', fontSize: '0.83rem', minHeight: 50, padding: '6px 12px', resize: 'vertical' }} />
+                </div>
               </div>
             </div>
 

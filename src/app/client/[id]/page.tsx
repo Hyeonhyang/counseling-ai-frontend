@@ -72,10 +72,10 @@ export default function ClientDetailPage() {
         self_esteem_score: editSession.self_esteem_score,
       });
       setEditSoap({
-        subjective: (editSession as any).soap_subjective || '',
-        objective: (editSession as any).soap_objective || '',
-        assessment: (editSession as any).soap_assessment || '',
-        plan: (editSession as any).soap_plan || '',
+        subjective: editSession.soap_subjective || '',
+        objective: editSession.soap_objective || '',
+        assessment: editSession.soap_assessment || '',
+        plan: editSession.soap_plan || '',
       });
     }
   }, [editSession]);
@@ -310,9 +310,10 @@ export default function ClientDetailPage() {
       assessment: soap.assessment || '',
       plan: soap.plan || '',
     });
-    // 위기 레벨 반영
+    // 위기 레벨 반영 (수정된 텍스트도 유지)
     setEditSession({
       ...editSession,
+      raw_text: editText,
       risk_level: parsed.risk_level || 'none',
       risk_keywords: JSON.stringify(parsed.risk_keywords || []),
     });

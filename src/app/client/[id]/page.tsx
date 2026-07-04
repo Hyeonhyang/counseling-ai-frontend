@@ -185,6 +185,8 @@ export default function ClientDetailPage() {
         soap_objective: editSoap.objective,
         soap_assessment: editSoap.assessment,
         soap_plan: editSoap.plan,
+        risk_level: editSession.risk_level || "none",
+        risk_keywords: editSession.risk_keywords || "[]",
       }),
     });
     setEditSession(null);
@@ -252,7 +254,12 @@ export default function ClientDetailPage() {
       assessment: soap.assessment || '',
       plan: soap.plan || '',
     });
-    // 재분석 결과는 숨김 (이미 위에 반영됨)
+    // 위기 레벨 반영
+    setEditSession({
+      ...editSession,
+      risk_level: parsed.risk_level || 'none',
+      risk_keywords: JSON.stringify(parsed.risk_keywords || []),
+    });
     setEditParseResult(null);
   }
 

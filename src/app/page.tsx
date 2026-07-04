@@ -7,6 +7,7 @@ import DeleteModal from './components/DeleteModal';
 interface Client {
   id: number; name: string; age: number | null;
   gender: string | null; presenting_issue: string;
+  latest_risk_level?: string;
 }
 
 export default function HomePage() {
@@ -116,6 +117,8 @@ export default function HomePage() {
                 <span style={{ marginLeft: 8, fontSize: '0.85rem', color: 'var(--text-light)' }}>
                   {c.age && `${c.age}세`} {c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : ''}
                 </span>
+                {c.latest_risk_level === 'crisis' && <span style={{ marginLeft: 8, fontSize: '0.7rem', background: '#dc2626', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>🚨 위기</span>}
+                {c.latest_risk_level === 'warning' && <span style={{ marginLeft: 8, fontSize: '0.7rem', background: '#f59e0b', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>⚠️ 주의</span>}
                 {c.presenting_issue && (
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: 4 }}>{c.presenting_issue}</p>
                 )}

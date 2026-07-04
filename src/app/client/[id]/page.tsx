@@ -119,6 +119,10 @@ export default function ClientDetailPage() {
           key_persons: JSON.stringify(parseResult.key_persons),
           defense_mechanisms: JSON.stringify(parseResult.defense_mechanisms),
           ai_summary: parseResult.summary || "",
+          soap_subjective: parseResult.soap?.subjective || "",
+          soap_objective: parseResult.soap?.objective || "",
+          soap_assessment: parseResult.soap?.assessment || "",
+          soap_plan: parseResult.soap?.plan || "",
         }),
       });
       setParseResult(null);
@@ -366,23 +370,27 @@ export default function ClientDetailPage() {
                 {/* SOAP 초안 */}
                 {parseResult.soap && (
                   <div style={{ marginBottom: 12 }}>
-                    <h4 style={{ fontSize: '0.9rem', marginBottom: 8 }}>📋 SOAP 초안</h4>
+                    <h4 style={{ fontSize: '0.9rem', marginBottom: 8 }}>📋 SOAP 초안 (수정 가능)</h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #1a73e8', background: '#f8faff', borderRadius: 4 }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1a73e8' }}>S | Subjective</span>
-                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{parseResult.soap.subjective}</p>
+                      <div style={{ borderLeft: '3px solid #1a73e8', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1a73e8', padding: '0 12px' }}>S | Subjective</span>
+                        <textarea value={parseResult.soap.subjective} onChange={e => setParseResult({...parseResult, soap: {...parseResult.soap, subjective: e.target.value}})}
+                          style={{ border: 'none', background: '#f8faff', fontSize: '0.83rem', minHeight: 60, padding: '6px 12px', resize: 'vertical' }} />
                       </div>
-                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #34a853', background: '#f8fff8', borderRadius: 4 }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34a853' }}>O | Objective</span>
-                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{parseResult.soap.objective}</p>
+                      <div style={{ borderLeft: '3px solid #34a853', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34a853', padding: '0 12px' }}>O | Objective</span>
+                        <textarea value={parseResult.soap.objective} onChange={e => setParseResult({...parseResult, soap: {...parseResult.soap, objective: e.target.value}})}
+                          style={{ border: 'none', background: '#f8fff8', fontSize: '0.83rem', minHeight: 60, padding: '6px 12px', resize: 'vertical' }} />
                       </div>
-                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #f59e0b', background: '#fffef8', borderRadius: 4 }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b' }}>A | Assessment</span>
-                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{parseResult.soap.assessment}</p>
+                      <div style={{ borderLeft: '3px solid #f59e0b', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b', padding: '0 12px' }}>A | Assessment</span>
+                        <textarea value={parseResult.soap.assessment} onChange={e => setParseResult({...parseResult, soap: {...parseResult.soap, assessment: e.target.value}})}
+                          style={{ border: 'none', background: '#fffef8', fontSize: '0.83rem', minHeight: 60, padding: '6px 12px', resize: 'vertical' }} />
                       </div>
-                      <div style={{ padding: '8px 12px', borderLeft: '3px solid #9c27b0', background: '#fdf8ff', borderRadius: 4 }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9c27b0' }}>P | Plan</span>
-                        <p style={{ fontSize: '0.83rem', marginTop: 2 }}>{parseResult.soap.plan}</p>
+                      <div style={{ borderLeft: '3px solid #9c27b0', borderRadius: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9c27b0', padding: '0 12px' }}>P | Plan</span>
+                        <textarea value={parseResult.soap.plan} onChange={e => setParseResult({...parseResult, soap: {...parseResult.soap, plan: e.target.value}})}
+                          style={{ border: 'none', background: '#fdf8ff', fontSize: '0.83rem', minHeight: 60, padding: '6px 12px', resize: 'vertical' }} />
                       </div>
                     </div>
                   </div>
